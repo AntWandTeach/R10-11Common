@@ -127,7 +127,7 @@ model.save('models/model_main')
 # # deprocessing
 #     user_price = user_price*price_max + price_min
 #     print(f"user_price is {user_price}")
-
+# ***
 
 
 
