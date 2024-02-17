@@ -1,0 +1,8 @@
+.idea
+.venv
+Content
+Datasets
+test.csv
+train.csv
+models
+data_description.txt

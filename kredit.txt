@@ -1,0 +1,63 @@
+from google.colab import drive 
+drive.mount('/content/drive')
+
+import pandas as pd
+import numpy as np
+import torch
+df = pd.read_csv('/content/drive/MyDrive/Obuch3.txt', sep = '\t')
+df.columns = [ 'гражданство', 'возраст', 'др долги', 'поручитель', 'раьбота', 'сроки','сумма кредита', 'доходы','оценка', 'col10',
+'col11', 'col12', 'col13', 'col14', 'col15', 'col16', 'col17']
+print(df)
+x_train = np.array(df.drop('оценка', axis=1), dtype=np.double)
+x_train = torch.from_numpy(x_train)
+y_train = np.array(df['оценка'], dtype=np.double)
+y_train = torch.from_numpy(y_train)
+y_train.unsqueeze(1)
+y_train.unsqueeze_(1)
+x_train.unsqueeze_(1)
+x_validation = torch.randint(2, 5, x_train.size())
+x_validation.unsqueeze_(1)
+
+
+class RegressionNet(torch.nn.Module):
+    def __init__(self, neurous):
+        super(RegressionNet, self).__init__()
+        self.fc1 = torch.nn.Linear(16,neurous)
+        self.act1 = torch.nn.Sigmoid()
+        self.fc2 = torch.nn.Linear(neurous, 1)
+
+    def forward(self,x):
+      x = self.fc1(x)
+      x = self.act1(x)
+      x = self.fc2(x)
+      return x
+Onet = RegressionNet(200)
+
+
+
+def loss(pred, target):
+  return torch.abs(pred - target).mean()
+
+optimizer = torch.optim.Adam(Onet.parameters(), lr = 0.01)
+
+def predict(net, x):
+  y_pred = net.forward(x)
+  return y_pred
+
+  
+
+for epoch_index in range(250):
+    optimizer.zero_grad()
+    y_pred = Onet.forward(x_train)
+    loss_value = loss(y_pred, y_train)
+    #print(loss_value)
+    loss_value.backward()
+
+    optimizer.step()
+    
+predict(Onet, x_validation)
+def metric(pred, target):
+  return (pred - target).abs().mean()
+  
+ 
+print(metric(Onet.forward(x_train), y_train).item())
